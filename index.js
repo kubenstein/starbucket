@@ -3,12 +3,12 @@
 //
 
 const http = require('http');
+const spawn = require('child_process').spawn;
 const NodeDiscover = require('node-discover');
 var gitserver = require('node-git-server');
 
 const net = NodeDiscover();
 const gitHandler = gitserver('.tmp/repos');
-let remoteMasterGitServerIp = null;
 
 const server = http.createServer((req, res) => {
     gitHandler.handle(req, res);
@@ -27,8 +27,9 @@ net.on('demotion', () => {
     server.close(() => {
         console.log('http git server stopped');
     });
-    net.join('update-available', () => {
-        console.log('update-available! pulling from: '+ remoteMasterGitServerIp);
+    net.join('update-available', (data) => {
+        // TODO:
+        // updateLocalRepo(data);
     });
 });
 
@@ -42,10 +43,10 @@ net.on('removed', (obj) => {
 
 net.on('master', (obj) => {
     console.log('A new master is in control');
-    remoteMasterGitServerIp = obj.address;
+    const remoteMasterGitServerIp = obj.address;
 
     net.join('update-available', (data) => {
-        console.log('update-available! pulling "'+ data.repoName +'" from: '+ remoteMasterGitServerIp);
+        updateLocalRepo(data.repoName, remoteMasterGitServerIp);
     });
 });
 
@@ -54,3 +55,11 @@ gitHandler.on('push', (push) => {
     push.accept();
     net.send('update-available', {repoName: push.repo});
 });
+
+
+function updateLocalRepo(repoName, remoteRepoIp) {
+    console.log('update-available! pulling "'+ repoName +'" from: '+ remoteRepoIp);
+    const localRepoPath = '.tmp/repos/'+ repoName +'.git/'
+    const remote = 'http://'+ remoteRepoIp +':7000/' + repoName;
+    const proc = spawn('git', ['--git-dir=.tmp/repos/star_bucket.git/', 'fetch', remote, '+refs/heads/*:refs/heads/*']);
+}
