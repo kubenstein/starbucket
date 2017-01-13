@@ -7,6 +7,7 @@ const spawn = require('child_process').spawn;
 const NodeDiscover = require('node-discover');
 var gitserver = require('node-git-server');
 
+const fileServerPort = 7000;
 const net = NodeDiscover();
 const gitHandler = gitserver('.tmp/repos');
 
@@ -16,7 +17,7 @@ const server = http.createServer((req, res) => {
 
 net.on('promotion', () => {
     console.log('I was promoted to a master.');
-    server.listen(7000, () => {
+    server.listen(fileServerPort, () => {
         console.log('http git server started');
     });
     net.leave('update-available');
@@ -60,6 +61,6 @@ gitHandler.on('push', (push) => {
 function updateLocalRepo(repoName, remoteRepoIp) {
     console.log('update-available! pulling "'+ repoName +'" from: '+ remoteRepoIp);
     const localRepoPath = '.tmp/repos/'+ repoName +'.git/'
-    const remote = 'http://'+ remoteRepoIp +':7000/' + repoName;
-    const proc = spawn('git', ['--git-dir=.tmp/repos/star_bucket.git/', 'fetch', remote, '+refs/heads/*:refs/heads/*']);
+    const remote = 'http://'+ remoteRepoIp +':'+ fileServerPort +'/' + repoName;
+    const proc = spawn('git', ['--git-dir='+ localRepoPath, 'fetch', remote, '+refs/heads/*:refs/heads/*']);
 }
