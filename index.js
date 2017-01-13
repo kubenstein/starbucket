@@ -2,23 +2,27 @@
 // git commit --allow-empty -m'test'; git push http://localhost:7000/${PWD##*/} master
 //
 
-const http = require('http');
 const spawn = require('child_process').spawn;
 const NodeDiscover = require('node-discover');
-var gitserver = require('node-git-server');
+const GitServer = require('./lib/git-server.js');
 
-const fileServerPort = 7000;
-const repoStorage = '.tmp/repos/';
+const gitServerPort = 7000;
+const localReposStoragePath = '.tmp/repos/';
+
+
 const net = NodeDiscover();
-const gitHandler = gitserver(repoStorage);
 
-const server = http.createServer((req, res) => {
-    gitHandler.handle(req, res);
+const server = new GitServer({
+    port: gitServerPort,
+    storagePath: localReposStoragePath,
+    dataReceivedCallback: (repoName) => {
+        net.send('update-available', {repoName: repoName});
+    }
 });
 
 net.on('promotion', () => {
     console.log('I was promoted to a master.');
-    server.listen(fileServerPort, () => {
+    server.start(() => {
         console.log('http git server started');
     });
     net.leave('update-available');
@@ -26,7 +30,7 @@ net.on('promotion', () => {
 
 net.on('demotion', () => {
     console.log('I was demoted from being a master.');
-    server.close(() => {
+    server.stop(() => {
         console.log('http git server stopped');
     });
     net.join('update-available', (data) => {
@@ -52,16 +56,11 @@ net.on('master', (obj) => {
     });
 });
 
-gitHandler.on('push', (push) => {
-    console.log('push ' + push.repo + '/' + push.commit + ' (' + push.branch + ')');
-    push.accept();
-    net.send('update-available', {repoName: push.repo});
-});
-
-
 function updateLocalRepo(repoName, remoteRepoIp) {
     console.log('update-available! pulling "'+ repoName +'" from: '+ remoteRepoIp);
-    const localRepoPath = repoStorage + repoName +'.git/'
-    const remote = 'http://'+ remoteRepoIp +':'+ fileServerPort +'/' + repoName;
+
+    const remoteGitServerPort = gitServerPort;
+    const localRepoPath = localReposStoragePath + repoName +'.git/'
+    const remote = 'http://'+ remoteRepoIp +':'+ remoteGitServerPort +'/' + repoName;
     const proc = spawn('git', ['--git-dir='+ localRepoPath, 'fetch', remote, '+refs/heads/*:refs/heads/*']);
 }
