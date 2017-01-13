@@ -8,8 +8,9 @@ const NodeDiscover = require('node-discover');
 var gitserver = require('node-git-server');
 
 const fileServerPort = 7000;
+const repoStorage = '.tmp/repos/';
 const net = NodeDiscover();
-const gitHandler = gitserver('.tmp/repos');
+const gitHandler = gitserver(repoStorage);
 
 const server = http.createServer((req, res) => {
     gitHandler.handle(req, res);
@@ -60,7 +61,7 @@ gitHandler.on('push', (push) => {
 
 function updateLocalRepo(repoName, remoteRepoIp) {
     console.log('update-available! pulling "'+ repoName +'" from: '+ remoteRepoIp);
-    const localRepoPath = '.tmp/repos/'+ repoName +'.git/'
+    const localRepoPath = repoStorage + repoName +'.git/'
     const remote = 'http://'+ remoteRepoIp +':'+ fileServerPort +'/' + repoName;
     const proc = spawn('git', ['--git-dir='+ localRepoPath, 'fetch', remote, '+refs/heads/*:refs/heads/*']);
 }
