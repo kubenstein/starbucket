@@ -1,13 +1,8 @@
-//
-// git commit --allow-empty -m'test'; git push http://localhost:7000/${PWD##*/} master
-//
-
 const NodeDiscover = require('node-discover');
 const GitServer = require('./lib/git-server.js');
 
 const gitServerPort = 7000;
 const localReposStoragePath = '.tmp/repos/';
-
 
 const net = NodeDiscover();
 
@@ -31,10 +26,6 @@ net.on('demotion', () => {
     console.log('I was demoted from being a master.');
     server.stop(() => {
         console.log('http git server stopped');
-    });
-    net.join('update-available', (data) => {
-        // TODO:
-        // updateLocalRepo(data);
     });
 });
 
