@@ -2,7 +2,6 @@
 // git commit --allow-empty -m'test'; git push http://localhost:7000/${PWD##*/} master
 //
 
-const spawn = require('child_process').spawn;
 const NodeDiscover = require('node-discover');
 const GitServer = require('./lib/git-server.js');
 
@@ -49,18 +48,9 @@ net.on('removed', (obj) => {
 
 net.on('master', (obj) => {
     console.log('A new master is in control');
-    const remoteMasterGitServerIp = obj.address;
+    const newGitMasterServerIp = obj.address;
 
     net.join('update-available', (data) => {
-        updateLocalRepo(data.repoName, remoteMasterGitServerIp);
+        server.mirrorRepo(newGitMasterServerIp, data.repoName);
     });
 });
-
-function updateLocalRepo(repoName, remoteRepoIp) {
-    console.log('update-available! pulling "'+ repoName +'" from: '+ remoteRepoIp);
-
-    const remoteGitServerPort = gitServerPort;
-    const localRepoPath = localReposStoragePath + repoName +'.git/'
-    const remote = 'http://'+ remoteRepoIp +':'+ remoteGitServerPort +'/' + repoName;
-    const proc = spawn('git', ['--git-dir='+ localRepoPath, 'fetch', remote, '+refs/heads/*:refs/heads/*']);
-}
