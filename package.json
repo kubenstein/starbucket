@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "linter": "standard || true",
+    "linter:fix": "standard --fix ; npm run linter",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
