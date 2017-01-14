@@ -1,7 +1,7 @@
 {
   "name": "starbucket",
-  "version": "1.0.0",
-  "description": "",
+  "version": "0.9.0",
+  "description": "Quickly create a dynamic, distributed and auto-syncing git server in a local network.",
   "scripts": {
     "linter": "standard || true",
     "linter:fix": "standard --fix ; npm run linter",
@@ -10,6 +10,13 @@
   "author": {
     "name": "Jakub Niewczas",
     "email": "niewczas.jakub@gmail.com"
+  },
+  "bin": {
+    "starbucket": "bin/starbucket"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/kubenstein/starbucket.git"
   },
   "license": "MIT",
   "dependencies": {

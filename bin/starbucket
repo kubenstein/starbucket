@@ -1,9 +1,24 @@
 #!/usr/bin/env node
 
+const path = require('path')
 const Starbucket = require('../lib/starbucket.js')
 
+const gatewayServerPort     = process.env.GATEWAY_PORT    || 7070
+const gitServerPort         = process.env.GIT_SERVER_PORT || 7000
+const localReposStoragePath = process.env.STORAGE_PATH    || '.tmp/repos/'
+
+const dirName = process.cwd().split(path.sep).pop()
+
+console.log('\n'
+  + '\n|'
+  + '\n| Starting Starbucket...'
+  + '\n| Configure your git remote as (we assume the repo name is "' + dirName + '"):'
+  + '\n|   git remote add starbucket http://localhost:' + gatewayServerPort + '/' + dirName
+  + '\n|'
+  + '\n\n')
+
 new Starbucket({
-  gatewayServerPort: process.env.GATEWAY_PORT    || 7070,
-  gitServerPort:     process.env.GIT_SERVER_PORT || 7000,
-  localReposStoragePath: '.tmp/repos/'
+  gatewayServerPort: gatewayServerPort,
+  gitServerPort: gitServerPort,
+  localReposStoragePath: localReposStoragePath
 }).start()
