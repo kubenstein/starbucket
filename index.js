@@ -1,43 +1,50 @@
 const NodeDiscover = require('node-discover');
 const GitServer = require('./lib/git-server.js');
+const GatewayServer = require('./lib/proxy-server.js');
 
-const gitServerPort = 7000;
+const gatewayServerPort = process.env.GATEWAY_PORT || 7070;
+const gitServerPort = process.env.GIT_SERVER_PORT || 7000;
 const localReposStoragePath = '.tmp/repos/';
 
 const net = NodeDiscover();
-
-const server = new GitServer({
+const gitServer = new GitServer({
   port: gitServerPort,
   storagePath: localReposStoragePath,
   dataReceivedCallback: (repoName) => {
     net.send('update-available', {repoName: repoName});
   }
 });
+const gatewayServer = new GatewayServer(gatewayServerPort);
+gatewayServer.restartWithTargetUrl('http://localhost:'+ gitServerPort);
 
 net.on('promotion', () => {
   console.log('I was promoted to a master.');
 
   net.leave('update-available');
-  server.start()
+  gitServer.start()
   .then(() => {
-    console.log('http git server started');
+    console.log('local http git server started');
+  })
+  .then(() => {
+    gatewayServer.restartWithTargetUrl('http://localhost:'+ gitServerPort);
   });
 });
 
 net.on('demotion', () => {
   console.log('I was demoted from being a master.');
-  server.stop()
+  gitServer.stop()
   .then(() => {
-    console.log('http git server stopped');
+    console.log('local http git server stopped');
   });
 });
 
 net.on('master', (obj) => {
   console.log('A new master is in control');
   const newGitMasterServerIp = obj.address;
+  gatewayServer.restartWithTargetUrl('http://'+ newGitMasterServerIp +':'+ gitServerPort);
 
   net.join('update-available', (data) => {
-    server.mirrorRepo(newGitMasterServerIp, data.repoName);
+    gitServer.mirrorRepo(gatewayServer.getTargetUrl(), data.repoName);
   });
 });
 

@@ -12,6 +12,7 @@
   },
   "license": "MIT",
   "dependencies": {
+    "http-proxy": "^1.16.2",
     "node-discover": "^0.6.2",
     "node-git-server": "github:gabrielcsapo/node-git-server"
   }
