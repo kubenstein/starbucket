@@ -1,50 +1,52 @@
 const NodeDiscover = require('node-discover')
 const GitServer = require('./lib/git-server.js')
 const GatewayServer = require('./lib/proxy-server.js')
+const Logger = require('./lib/console-logger.js')
 
 const gatewayServerPort = process.env.GATEWAY_PORT || 7070
 const gitServerPort = process.env.GIT_SERVER_PORT || 7000
 const localReposStoragePath = '.tmp/repos/'
 
+const logger = new Logger()
 const net = configureDiscoveryService(gitServerPort)
-const gatewayServer = configureGatewayServer(gatewayServerPort)
-const gitServer = configureAndStartGitServer(gitServerPort, localReposStoragePath,
+const gatewayServer = configureGatewayServer(logger, gatewayServerPort)
+const gitServer = configureAndStartGitServer(logger, gitServerPort, localReposStoragePath,
   (repoName) => {
     net.send('update-available', {repoName: repoName})
   }
 )
 
 net.on('promotion', () => {
-  console.log('I was promoted to a master.')
+  logger.log('net', 'promotion to MASTER')
 
   net.leave('update-available')
   gatewayServer.restartWithTargetUrl('http://localhost:' + gitServerPort)
-  console.log('reconfiguring gateway, entry address: http://localhost:' + gatewayServerPort + ' (pointing at: ' + gatewayServer.getTargetUrl() + ')')
-})
-
-net.on('demotion', () => {
-  console.log('I was demoted from being a master.')
 })
 
 net.on('master', (obj) => {
-  console.log('A new master is in control')
+  logger.log('net', 'other node is a master: ' + obj.address)
 
   const newGitMasterServerIp = obj.address
   const newGitMasterServerPort = obj.advertisement.gitServerPort
   gatewayServer.restartWithTargetUrl('http://' + newGitMasterServerIp + ':' + newGitMasterServerPort)
-  console.log('reconfiguring gateway, entry address: http://localhost:' + gatewayServerPort + ' (pointing at: ' + gatewayServer.getTargetUrl() + ')')
 
   net.join('update-available', (data) => {
+    logger.log('net', 'update available for: ' + data.repoName)
+
     gitServer.mirrorRepo(gatewayServer.getTargetUrl(), data.repoName)
   })
 })
 
+net.on('demotion', () => {
+  logger.log('net', 'demoted from being a MASTER')
+})
+
 net.on('added', (obj) => {
-  console.log('A new node has been added.')
+  logger.log('net', 'new node discovered: ' + obj.address)
 })
 
 net.on('removed', (obj) => {
-  console.log('A node has been removed.')
+  logger.log('net', 'node removed ' + obj.address)
 })
 
 // setup
@@ -57,19 +59,20 @@ function configureDiscoveryService (gitServerPort) {
   return net
 }
 
-function configureGatewayServer (gatewayServerPort) {
-  return new GatewayServer(gatewayServerPort)
+function configureGatewayServer (logger, gatewayServerPort) {
+  return new GatewayServer({
+    logger: logger,
+    port: gatewayServerPort
+  })
 }
 
-function configureAndStartGitServer (gitServerPort, localReposStoragePath, gitDataReceivedCallback) {
+function configureAndStartGitServer (logger, gitServerPort, localReposStoragePath, gitDataReceivedCallback) {
   const gitServer = new GitServer({
+    logger: logger,
     port: gitServerPort,
     storagePath: localReposStoragePath,
     dataReceivedCallback: gitDataReceivedCallback
   })
   gitServer.start()
-  .then(() => {
-    console.log('local http git server started')
-  })
   return gitServer
 }
