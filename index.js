@@ -32,14 +32,6 @@ net.on('demotion', () => {
   });
 });
 
-net.on('added', (obj) => {
-  console.log('A new node has been added.');
-});
-
-net.on('removed', (obj) => {
-  console.log('A node has been removed.');
-});
-
 net.on('master', (obj) => {
   console.log('A new master is in control');
   const newGitMasterServerIp = obj.address;
@@ -47,4 +39,12 @@ net.on('master', (obj) => {
   net.join('update-available', (data) => {
     server.mirrorRepo(newGitMasterServerIp, data.repoName);
   });
+});
+
+net.on('added', (obj) => {
+  console.log('A new node has been added.');
+});
+
+net.on('removed', (obj) => {
+  console.log('A node has been removed.');
 });
