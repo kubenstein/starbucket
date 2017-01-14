@@ -4,6 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
+    "linter": "standard || true",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": {
@@ -15,5 +16,8 @@
     "http-proxy": "^1.16.2",
     "node-discover": "^0.6.2",
     "node-git-server": "github:gabrielcsapo/node-git-server"
+  },
+  "devDependencies": {
+    "standard": "^8.6.0"
   }
 }
