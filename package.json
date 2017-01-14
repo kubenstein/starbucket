@@ -2,7 +2,6 @@
   "name": "starbucket",
   "version": "1.0.0",
   "description": "",
-  "main": "index.js",
   "scripts": {
     "linter": "standard || true",
     "linter:fix": "standard --fix ; npm run linter",
