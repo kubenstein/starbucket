@@ -16,15 +16,18 @@ const server = new GitServer({
 
 net.on('promotion', () => {
   console.log('I was promoted to a master.');
-  server.start(() => {
+
+  net.leave('update-available');
+  server.start()
+  .then(() => {
     console.log('http git server started');
   });
-  net.leave('update-available');
 });
 
 net.on('demotion', () => {
   console.log('I was demoted from being a master.');
-  server.stop(() => {
+  server.stop()
+  .then(() => {
     console.log('http git server stopped');
   });
 });
