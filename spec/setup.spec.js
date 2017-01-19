@@ -6,9 +6,16 @@ const Starbucket = require('../lib/starbucket.js')
 const fixturesPath = '/tmp/test' + Math.random() + '/reposToTestServers'
 
 const starbucket = new Starbucket({
-  gatewayServerPort: 6666,
-  gitServerPort: 3333,
+  gatewayServerPort: 1111,
+  gitServerPort: 1119,
   localReposStoragePath: '.tmp/test/node1/repos',
+  logger: new NullLogger()
+})
+
+const otherStarbucketNode = new Starbucket({
+  gatewayServerPort: 2222,
+  gitServerPort: 2229,
+  localReposStoragePath: '.tmp/test/node2/repos',
   logger: new NullLogger()
 })
 
@@ -21,14 +28,14 @@ describe('Starbucket', function () {
     }).then(() => {
       return gitHelpers.createLocalGitRepoWithData(fixturesPath + '/repoWithAfileToPush')
     }).then(() => {
+      expect(starbucket.isMasterNode()).to.be.true
       return gitHelpers.pushLocalRepoToStarbucket(starbucket.gatewayServerPort, fixturesPath + '/repoWithAfileToPush')
     }).then(() => {
       return gitHelpers.cloneRepoFromStarbucket(starbucket.gatewayServerPort, fixturesPath + '/clonedRepoWithAFile')
     }).then(() => {
       return gitHelpers.openFile(fixturesPath + '/clonedRepoWithAFile/theFile.txt')
-      .then((fileContent) => {
-        expect(fileContent).to.be.equal('theFileContent')
-      })
+    }).then((fileContent) => {
+      expect(fileContent).to.be.equal('theFileContent')
     })
     .catch((err) => { return err })
     .then((errOrNull) => {
@@ -38,10 +45,35 @@ describe('Starbucket', function () {
     })
   })
 
-  xit('makes git server avaliable when current node is not a Master', () => {
+  it('makes git server avaliable when current node is not a Master', (done) => {
+    otherStarbucketNode.clearTmp().then(() => {
+      return otherStarbucketNode.start()
+    }).then(() => {
+      return starbucket.clearTmp()
+    }).then(() => {
+      return starbucket.start()
+    }).then(() => {
+      return gitHelpers.createLocalGitRepoWithData(fixturesPath + '/repoWithAfileToPush')
+    }).then(() => {
+      expect(otherStarbucketNode.isMasterNode()).to.be.true
+      expect(starbucket.isMasterNode()).to.be.false
+      return gitHelpers.pushLocalRepoToStarbucket(starbucket.gatewayServerPort, fixturesPath + '/repoWithAfileToPush')
+    }).then(() => {
+      return gitHelpers.cloneRepoFromStarbucket(starbucket.gatewayServerPort, fixturesPath + '/clonedRepoWithAFile')
+    }).then(() => {
+      return gitHelpers.openFile(fixturesPath + '/clonedRepoWithAFile/theFile.txt')
+    }).then((fileContent) => {
+      expect(fileContent).to.be.equal('theFileContent')
+    })
+    .catch((err) => { return err })
+    .then((errOrNull) => {
+      starbucket.stop().then(() => {
+        done(errOrNull)
+      })
+    })
   })
 
-  xit('makes git server avaliable when previous Master node was disconnected', () => {
+  xit('makes git server avaliable when previous Master node was disconnected', (done) => {
   })
 
   xit('makes git server avaliable when previous Master node was disconnected', () => {
