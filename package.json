@@ -3,9 +3,11 @@
   "version": "0.9.1",
   "description": "Quickly create a dynamic, distributed and auto-syncing git server in a local network.",
   "scripts": {
-    "linter": "standard || true",
-    "linter:fix": "standard --fix ; npm run linter",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "linter": "standard",
+    "linter:noNpmError": "npm run linter || true",
+    "linter:fix": "standard --fix ; npm run linter:noNpmError",
+    "test": "npm run linter && npm run spec",
+    "spec": "mocha spec/ --colors"
   },
   "author": {
     "name": "Jakub Niewczas",
@@ -28,6 +30,14 @@
     "node-git-server": "^0.0.1"
   },
   "devDependencies": {
+    "chai": "^3.5.0",
+    "mocha": "^3.2.0",
     "standard": "^8.6.0"
+  },
+  "standard": {
+    "globals": [
+      "describe",
+      "it"
+    ]
   }
 }
