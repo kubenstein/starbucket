@@ -4,7 +4,7 @@
   "description": "Quickly create a dynamic, distributed and auto-syncing git server in a local network.",
   "scripts": {
     "linter": "standard",
-    "linter:noNpmError": "npm run linter || true",
+    "linter:noNpmError": "standard || true",
     "linter:fix": "standard --fix ; npm run linter:noNpmError",
     "test": "npm run linter && npm run spec",
     "spec": "mocha spec/ --colors"
@@ -38,7 +38,9 @@
   "standard": {
     "globals": [
       "describe",
-      "it"
+      "it",
+      "beforeEach",
+      "afterEach"
     ]
   }
 }
