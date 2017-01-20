@@ -1,4 +1,5 @@
-# Starbucket
+Starbucket [![Build Status](https://travis-ci.org/kubenstein/starbucket.png?branch=master)](https://travis-ci.org/kubenstein/starbucket)
+=============
 
 Quickly create a dynamic, distributed and auto-syncing git server in a local network.
 
