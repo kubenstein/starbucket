@@ -20,7 +20,7 @@ const otherStarbucketNode = new Starbucket({
 })
 
 describe('Starbucket', function () {
-  this.timeout(10000)
+  this.timeout(20000)
 
   it('makes git server avaliable when there is only one node', (done) => {
     starbucket.clearTmp().then(() => {
@@ -67,15 +67,52 @@ describe('Starbucket', function () {
     })
     .catch((err) => { return err })
     .then((errOrNull) => {
-      starbucket.stop().then(() => {
+      Promise.all([
+        otherStarbucketNode.stop(),
+        starbucket.stop()
+      ]).then(()=> {
         done(errOrNull)
       })
     })
   })
 
-  xit('makes git server avaliable when previous Master node was disconnected', (done) => {
-  })
-
-  xit('makes git server avaliable when previous Master node was disconnected', () => {
+  it('makes git server avaliable when previous Master node disconnects', (done) => {
+    otherStarbucketNode.clearTmp().then(() => {
+      return otherStarbucketNode.start()
+    }).then(() => {
+      return starbucket.clearTmp()
+    }).then(() => {
+      return starbucket.start()
+    }).then(() => {
+      return gitHelpers.createLocalGitRepoWithData(fixturesPath + '/repoWithAfileToPush')
+    }).then(() => {
+      expect(otherStarbucketNode.isMasterNode()).to.be.true
+      expect(starbucket.isMasterNode()).to.be.false
+    }).then(() => {
+      return otherStarbucketNode.stop()
+    }).then(() => {
+      return new Promise((resolve) => {
+        setTimeout(resolve, 7000)
+      })
+    }).then(() => {
+      expect(otherStarbucketNode.isMasterNode()).to.be.false
+      expect(starbucket.isMasterNode()).to.be.true
+      return gitHelpers.pushLocalRepoToStarbucket(starbucket.gatewayServerPort, fixturesPath + '/repoWithAfileToPush')
+    }).then(() => {
+      return gitHelpers.cloneRepoFromStarbucket(starbucket.gatewayServerPort, fixturesPath + '/clonedRepoWithAFile')
+    }).then(() => {
+      return gitHelpers.openFile(fixturesPath + '/clonedRepoWithAFile/theFile.txt')
+    }).then((fileContent) => {
+      expect(fileContent).to.be.equal('theFileContent')
+    })
+    .catch((err) => { return err })
+    .then((errOrNull) => {
+      Promise.all([
+        otherStarbucketNode.stop(),
+        starbucket.stop()
+      ]).then(()=> {
+        done(errOrNull)
+      })
+    })
   })
 })
