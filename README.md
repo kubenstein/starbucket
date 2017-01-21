@@ -8,6 +8,8 @@ Quickly create a dynamic, distributed and auto-syncing git server in a local net
 
 Starbucket was created to reintroduce “distributed” aspect of the GIT source control system. With centralised codebases at Github, Bitbucket or any other custom configuration, it happens too often, that due to a platform unavailability, teams can't make ANY progress.
 
+See a blogpost: http://www.jakubniewczas.pl/#/blog/starbucket-reintroduce-distributed-aspect-of-git
+
 
 ### Installation
 
@@ -73,6 +75,13 @@ Each node starts 3 services:
 - Proxy server - proxy server will proxy all traffic from localhost to currently chosen master. If a node is a master, proxy will proxy traffic back to same machine. Proxy will reconfigure itself automatically when a new master is announced.
 
 In short we keep a master-slaves network architecture but with an ability to reconfigure node roles at any given time.
+
+
+### Tests
+
+```
+npm run test
+```
 
 
 ### License
