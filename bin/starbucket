@@ -5,7 +5,7 @@ const Starbucket = require('../lib/starbucket.js')
 
 const gatewayServerPort     = process.env.GATEWAY_PORT    || 7070
 const gitServerPort         = process.env.GIT_SERVER_PORT || 7000
-const localReposStoragePath = process.env.STORAGE_PATH    || '.tmp/repos/'
+const localReposStoragePath = process.env.STORAGE_PATH    || '.tmp/repos'
 
 const dirName = process.cwd().split(path.sep).pop()
 
