@@ -80,7 +80,7 @@ In short we keep a master-slaves network architecture but with an ability to rec
 ### Tests
 
 ```
-npm run test
+npm run spec
 ```
 
 

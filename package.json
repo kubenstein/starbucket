@@ -3,10 +3,9 @@
   "version": "1.0.1",
   "description": "Quickly create a dynamic, distributed and auto-syncing git server in a local network.",
   "scripts": {
-    "linter": "standard",
-    "linter:noNpmError": "standard || true",
-    "linter:fix": "standard --fix ; npm run linter:noNpmError",
-    "test": "npm run linter && npm run spec",
+    "dev:linter": "standard --verbose | snazzy",
+    "dev:linter:noNpmError": "standard --verbose | snazzy || true",
+    "dev:linter:fix": "standard --fix ; npm run dev:linter:noNpmError",
     "spec": "mocha spec/ --colors"
   },
   "author": {
@@ -33,6 +32,7 @@
   "devDependencies": {
     "chai": "^3.5.0",
     "mocha": "^3.2.0",
+    "snazzy": "^7.0.0",
     "standard": "^8.6.0"
   },
   "standard": {
