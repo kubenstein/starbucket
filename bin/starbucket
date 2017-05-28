@@ -1,13 +1,13 @@
 #!/usr/bin/env node
 
-const path = require('path')
-const Starbucket = require('../lib/starbucket.js')
+var path = require('path')
+var Starbucket = require('../dist/starbucket.js')
 
-const gatewayServerPort     = process.env.GATEWAY_PORT    || 7070
-const gitServerPort         = process.env.GIT_SERVER_PORT || 7000
-const localReposStoragePath = process.env.STORAGE_PATH    || '.tmp/repos'
+var gatewayServerPort     = process.env.GATEWAY_PORT    || 7070
+var gitServerPort         = process.env.GIT_SERVER_PORT || 7000
+var localReposStoragePath = process.env.STORAGE_PATH    || '.tmp/repos'
 
-const dirName = process.cwd().split(path.sep).pop()
+var dirName = process.cwd().split(path.sep).pop()
 
 console.log('\n'
   + '\n|'
