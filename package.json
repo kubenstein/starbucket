@@ -1,6 +1,6 @@
 {
   "name": "starbucket",
-  "version": "1.0.1",
+  "version": "1.1.1",
   "description": "Quickly create a dynamic, distributed and auto-syncing git server in a local network.",
   "scripts": {
     "dev:linter": "standard --verbose ./src/**/* | snazzy",
