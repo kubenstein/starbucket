@@ -14,7 +14,7 @@ fs.readdirSync('node_modules')
   })
 
 module.exports = {
-  entry: `${srcDir}/lib/starbucket.js`,
+  entry: `${srcDir}/lib.js`,
   target: 'node',
   node: {
     __dirname: false,

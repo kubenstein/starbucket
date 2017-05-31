@@ -1,7 +1,7 @@
 const expect = require('chai').expect
 const NullLogger = require('./support/null-logger.js')
 const gitHelpers = require('./support/git-command-helpers.js')
-const Starbucket = require('../lib/starbucket.js')
+const Starbucket = require('../lib.js').Starbucket
 
 var specTempPath
 

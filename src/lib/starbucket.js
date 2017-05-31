@@ -2,8 +2,8 @@
 'use strict'
 
 const NodeDiscover = require('node-discover')
-const GitServer = require('./starbucket/git-server.js')
-const GatewayServer = require('./starbucket/proxy-server.js')
+const GitServer = require('./git-server.js')
+const GatewayServer = require('./proxy-server.js')
 const Logger = require('./console-logger.js')
 
 class NullNet {
