@@ -68,8 +68,8 @@ describe('Starbucket', function () {
     }).then(() => {
       return waitForNodeToBecomeAMaster(starbucket)
     }).then(() => {
-      expect(otherStarbucketNode.isMasterNode()).to.be.false
-      expect(starbucket.isMasterNode()).to.be.true
+      expect(otherStarbucketNode.isMasterNode()).to.eq(false)
+      expect(starbucket.isMasterNode()).to.eq(true)
     }).then(() => {
       return gitHelpers.pushLocalRepoToStarbucket(starbucket.gatewayServerPort, specTempPath + '/repoWithAfileToPush')
     }).then(() => {
