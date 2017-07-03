@@ -40,7 +40,7 @@
     "mocha": "~3.x.x",
     "snazzy": "~7.x.x",
     "standard": "~10.0.x",
-    "webpack": "~2.6.1"
+    "webpack": "~2.6.x"
   },
   "standard": {
     "globals": [
