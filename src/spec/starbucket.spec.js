@@ -22,6 +22,22 @@ const otherStarbucketNode = new Starbucket({
 describe('Starbucket', function () {
   this.timeout(20000)
 
+  beforeEach(() => {
+    specTempPath = '/tmp/test' + Math.random() + '/reposToTestServers'
+    return Promise.all([
+      otherStarbucketNode.clearTmp(),
+      starbucket.clearTmp(),
+      gitHelpers.createLocalGitRepoWithData(specTempPath + '/repoWithAfileToPush')
+    ])
+  })
+
+  afterEach(() => {
+    return Promise.all([
+      otherStarbucketNode.stop(),
+      starbucket.stop()
+    ])
+  })
+
   it('makes git server avaliable when there is only one node', (done) => {
     starbucket.start().then(() => {
       return waitForNodeToBecomeAMaster(starbucket)
@@ -81,22 +97,6 @@ describe('Starbucket', function () {
       done()
     })
     .catch((err) => { done(err) })
-  })
-
-  beforeEach(() => {
-    specTempPath = '/tmp/test' + Math.random() + '/reposToTestServers'
-    return Promise.all([
-      otherStarbucketNode.clearTmp(),
-      starbucket.clearTmp(),
-      gitHelpers.createLocalGitRepoWithData(specTempPath + '/repoWithAfileToPush')
-    ])
-  })
-
-  afterEach(() => {
-    return Promise.all([
-      otherStarbucketNode.stop(),
-      starbucket.stop()
-    ])
   })
 
   // private
