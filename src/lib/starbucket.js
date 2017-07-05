@@ -1,10 +1,9 @@
 /* eslint-disable no-multi-spaces */
-'use strict'
 
-const NodeDiscover = require('node-discover')
-const GitServer = require('./git-server.js')
-const GatewayServer = require('./proxy-server.js')
-const Logger = require('./console-logger.js')
+import NodeDiscover from 'node-discover'
+import GitServer from './git-server.js'
+import GatewayServer from './proxy-server.js'
+import Logger from './console-logger.js'
 
 class NullNet {
   stop () {
@@ -12,7 +11,7 @@ class NullNet {
   }
 }
 
-class Starbucket {
+export default class Starbucket {
   constructor (attrs) {
     this.gatewayServerPort     = attrs.gatewayServerPort
     this.gitServerPort         = attrs.gitServerPort
@@ -57,19 +56,19 @@ class Starbucket {
 
     this.isMaster = true
     this.net.leave('update-available')
-    this.gatewayServer.restartWithTargetUrl('http://localhost:' + this.gitServerPort)
+    this.gatewayServer.restartWithTargetUrl(`http://localhost:${this.gitServerPort}`)
   }
 
   onNewMasterChosen (netNodeInfo) {
-    this.logger.log('net', 'other node is a MASTER: ' + netNodeInfo.address)
+    this.logger.log('net', `other node is a MASTER: ${netNodeInfo.address}`)
 
     this.isMaster = false
-    this.gatewayServer.restartWithTargetUrl(
-      'http://' + netNodeInfo.address + ':' + netNodeInfo.advertisement.gitServerPort
-    )
+    const address = netNodeInfo.address
+    const port = netNodeInfo.advertisement.gitServerPort
+    this.gatewayServer.restartWithTargetUrl(`http://${address}:${port}`)
 
     this.net.join('update-available', (data) => {
-      this.logger.log('net', 'update available for: ' + data.repoName)
+      this.logger.log('net', `update available for: ${data.repoName}`)
       this.gitServer.mirrorRepo(this.gatewayServer.getTargetUrl(), data.repoName)
     })
   }
@@ -87,8 +86,8 @@ class Starbucket {
       this.net.on('promotion', ()            => { this.onPromoteToMaster() })
       this.net.on('master',    (netNodeInfo) => { this.onNewMasterChosen(netNodeInfo) })
       this.net.on('demotion',  ()            => { this.logger.log('net', 'demoted from being a MASTER') })
-      this.net.on('added',     (netNodeInfo) => { this.logger.log('net', 'new node discovered: ' + netNodeInfo.address) })
-      this.net.on('removed',   (netNodeInfo) => { this.logger.log('net', 'node removed ' + netNodeInfo.address) })
+      this.net.on('added',     (netNodeInfo) => { this.logger.log('net', `new node discovered: ${netNodeInfo.address}`) })
+      this.net.on('removed',   (netNodeInfo) => { this.logger.log('net', `node removed ${netNodeInfo.address}`) })
     })
   }
 
@@ -116,5 +115,3 @@ class Starbucket {
     })
   }
 }
-
-module.exports = Starbucket

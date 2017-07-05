@@ -7,7 +7,10 @@
     "dev:linter:noNpmError": "standard --verbose ./src/**/* | snazzy || true",
     "dev:linter:fix": "standard --fix ; npm run dev:linter:noNpmError",
     "build": "rm -rf ./dist/ && NODE_ENV=production webpack --config ./src/webpack.config.js",
-    "specs": "mocha ./src/spec/ --colors"
+    "specs": "npm run specs:lib",
+    "specs:lib": "npm run specs:lib:build && npm run specs:lib-without-rebuild",
+    "specs:lib:build": "npm run build",
+    "specs:lib-without-rebuild": "mocha ./src/spec/ --colors"
   },
   "author": {
     "name": "Jakub Niewczas",

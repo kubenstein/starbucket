@@ -1,8 +1,6 @@
-'use strict'
+import httpProxy from 'http-proxy'
 
-const httpProxy = require('http-proxy')
-
-class ProxyServer {
+export default class ProxyServer {
   constructor (attrs) {
     this.port = attrs.port
     this.logger = attrs.logger
@@ -48,5 +46,3 @@ class ProxyServer {
     return httpProxy.createProxyServer({target: targetUrl})
   }
 }
-
-module.exports = ProxyServer

@@ -1,4 +1,4 @@
-const Starbucket = require('./lib.js').Starbucket
+const Starbucket = require('../dist/starbucket.js').Starbucket
 
 new Starbucket({
   gatewayServerPort: process.env.GATEWAY_PORT || 7070,
