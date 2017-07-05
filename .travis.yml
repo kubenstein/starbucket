@@ -3,7 +3,7 @@ before_install:
   - git config --global user.email travis@locahost
 language: node_js
 script:
-  - npm run spec
+  - npm run specs
 node_js:
   - '7'
   - '6'
