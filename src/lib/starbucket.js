@@ -21,9 +21,7 @@ export default class Starbucket {
     this.net           = new NullNet()
     this.isMaster      = false
     this.gatewayServer = this.configureGatewayServer()
-    this.gitServer     = this.configureGitServer((repoName) => {
-      this.net.send('update-available', { repoName: repoName })
-    })
+    this.gitServer     = this.configureGitServer()
   }
 
   start () {
@@ -49,9 +47,13 @@ export default class Starbucket {
     return this.isMaster
   }
 
-  // net events
+  // events
 
-  onPromoteToMaster () {
+  onGitServerDataReceived (repoName) {
+    this.net.send('update-available', { repoName: repoName })
+  }
+
+  onNetPromoteToMaster () {
     this.logger.log('net', 'promotion to be a MASTER node')
 
     this.isMaster = true
@@ -59,7 +61,7 @@ export default class Starbucket {
     this.gatewayServer.restartWithTargetUrl(`http://localhost:${this.gitServerPort}`)
   }
 
-  onNewMasterChosen (netNodeInfo) {
+  onNetNewMasterChosen (netNodeInfo) {
     this.logger.log('net', `other node is a MASTER: ${netNodeInfo.address}`)
 
     this.isMaster = false
@@ -83,8 +85,8 @@ export default class Starbucket {
       this.net.once('promotion', resolve)
       this.net.once('master',    resolve)
 
-      this.net.on('promotion', ()            => { this.onPromoteToMaster() })
-      this.net.on('master',    (netNodeInfo) => { this.onNewMasterChosen(netNodeInfo) })
+      this.net.on('promotion', ()            => { this.onNetPromoteToMaster() })
+      this.net.on('master',    (netNodeInfo) => { this.onNetNewMasterChosen(netNodeInfo) })
       this.net.on('demotion',  ()            => { this.logger.log('net', 'demoted from being a MASTER') })
       this.net.on('added',     (netNodeInfo) => { this.logger.log('net', `new node discovered: ${netNodeInfo.address}`) })
       this.net.on('removed',   (netNodeInfo) => { this.logger.log('net', `node removed ${netNodeInfo.address}`) })
@@ -98,12 +100,12 @@ export default class Starbucket {
     })
   }
 
-  configureGitServer (gitDataReceivedCallback) {
+  configureGitServer () {
     return new GitServer({
       logger: this.logger,
       port: this.gitServerPort,
       storagePath: this.localReposStoragePath,
-      dataReceivedCallback: gitDataReceivedCallback
+      onDataReceived: (repoName) => { this.onGitServerDataReceived(repoName) }
     })
   }
 

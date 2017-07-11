@@ -8,9 +8,9 @@ export default class GitServer {
     this.port = attrs.port
     this.storagePath = attrs.storagePath
     this.logger = attrs.logger
-    const dataReceivedCallback = attrs.dataReceivedCallback
+    const onDataReceived = attrs.onDataReceived
 
-    this.server = this.createServer(this.storagePath, dataReceivedCallback)
+    this.server = this.createServer(this.storagePath, onDataReceived)
   }
 
   start () {
